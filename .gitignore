@@ -1,0 +1,15 @@
+# Dataset (download from Kaggle, see README)
+data/
+
+# Model weights (exceed GitHub's 100 MB file limit)
+saved_models/
+*.pth
+*.pt
+
+# Python / Jupyter
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+gradcam_result.png
