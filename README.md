@@ -9,14 +9,14 @@
 Fine-tuning an ImageNet-pretrained **Swin Transformer (Swin-Tiny)** to classify brain MRI slices into four classes (**glioma**, **meningioma**, **pituitary tumor** and **no tumor**), with **Grad-CAM** visualizations that show which regions of the scan drove each prediction.
 
 <p align="center">
-  <img src="images/gradcam_grid.png" width="620" alt="Grad-CAM: original MRI, heatmap and overlay for each class">
+  <img src="images/gradcam_grid.png" width="700" alt="Grad-CAM: original MRI, heatmap and overlay for glioma, meningioma and pituitary tumor">
 </p>
 
 ## Highlights
 
 - **99.24% accuracy** on 1,311 held-out test images, with F1 ≥ 0.98 for every class
 - **Two-stage transfer learning**: train a new classifier head on the frozen backbone, then fine-tune the last two Swin stages at a lower learning rate
-- **Explainability** with Grad-CAM on the final feature map of the transformer
+- **Explainability** with Grad-CAM on the last Swin Transformer block, localizing the tumor region behind each prediction
 
 ## Results
 
@@ -38,16 +38,20 @@ Only 10 of 1,311 test images are misclassified. Most errors are meningioma predi
 
 ## Grad-CAM explainability
 
-Grad-CAM highlights the image regions that most increased the score of the predicted class. Each example shows the original MRI, the heatmap and the overlay.
+Grad-CAM highlights the regions of the scan that most increased the score of the predicted class (red = strongest influence). Each example shows the original MRI with its true label, the heatmap, and the overlay with the model's prediction. The model attends to the tumor itself in every example.
 
-| | |
-|---|---|
-| ![](images/gradcam_glioma_1.png) | ![](images/gradcam_glioma_2.png) |
-| ![](images/gradcam_meningioma_1.png) | ![](images/gradcam_meningioma_2.png) |
-| ![](images/gradcam_pituitary_1.png) | ![](images/gradcam_pituitary_2.png) |
-| ![](images/gradcam_notumor_1.png) | ![](images/gradcam_notumor_2.png) |
+**Glioma**
+<p align="center"><img src="images/gradcam_glioma_1.png" width="760" alt="Grad-CAM glioma example 1"></p>
+<p align="center"><img src="images/gradcam_glioma_2.png" width="760" alt="Grad-CAM glioma example 2"></p>
 
-For tumor classes the activation concentrates around the lesion. For *no tumor*, the model looks across the whole brain, as expected when there's no single region to focus on. The maps are coarse because Swin-Tiny's final feature map is 7×7 (one cell covers 32×32 pixels).
+**Meningioma**
+<p align="center"><img src="images/gradcam_meningioma_1.png" width="760" alt="Grad-CAM meningioma example 1"></p>
+<p align="center"><img src="images/gradcam_meningioma_2.png" width="760" alt="Grad-CAM meningioma example 2"></p>
+
+**Pituitary tumor**
+<p align="center"><img src="images/gradcam_pituitary.png" width="760" alt="Grad-CAM pituitary example"></p>
+
+The heatmaps are coarse because Swin-Tiny's last stage works on a 7×7 grid of tokens, so each cell covers a 32×32-pixel patch of the input.
 
 ## Method
 
@@ -78,7 +82,7 @@ Freezing the backbone first lets the randomly initialized head converge without 
 
 ```
 ├── torchswin.ipynb      # full pipeline: data, two-stage training, evaluation, Grad-CAM
-├── gradcam.py           # standalone Grad-CAM script (produced the images above)
+├── gradcam.py           # standalone Grad-CAM script for any MRI image
 ├── images/              # Grad-CAM examples and confusion matrix
 ├── requirements.txt
 └── LICENSE
